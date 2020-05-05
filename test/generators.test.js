@@ -5,7 +5,7 @@ const assert = require('yeoman-assert');
 const { startAndWait } = require('./utils');
 
 describe('generator-feathers', function() {
-  const tester = process.env.GENERATOR_TESTER || 'mocha';
+  const tester = 'mocha';
 
   let appDir;
   
@@ -24,7 +24,7 @@ describe('generator-feathers', function() {
   const runTest = adapter => () => {
     const prompts = {
       name: 'myapp',
-      language: process.env.GENERATOR_LANGUAGE || 'js',
+      language: 'ts',
       authentication: true,
       providers: ['rest', 'socketio'],
       packager: 'npm',
@@ -34,19 +34,19 @@ describe('generator-feathers', function() {
       strategies: ['local']
     };
 
-    if (adapter === 'sequelize' || adapter === 'knex' || adapter === 'objection') {
-      prompts.database = 'sqlite';
+    if (adapter === 'sequelize') {
+      prompts.database = 'postgres';
     }
 
     before(() => helpers.run(path.join(__dirname, '..', 'generators', 'app'))
       .inTmpDir(dir => (appDir = dir))
       .withPrompts(prompts)
       .withOptions({
-        skipInstall: false
+        skipInstall: true
       })
     );
 
-    it('basic app tests', () => npmTest('starts and shows the index page'));
+    // it('basic app tests', () => npmTest('starts and shows the index page'));
 
     it('feathers:hook', async () => {
       await helpers.run(path.join(__dirname, '../generators/hook'))
@@ -75,13 +75,13 @@ describe('generator-feathers', function() {
     });
   };
   
-  describe('with memory adapter', runTest('memory'));
-  describe('with nedb adapter', runTest('nedb'));
+  // describe('with memory adapter', runTest('memory'));
+  // describe('with nedb adapter', runTest('nedb'));
   describe('with sequelize adapter', runTest('sequelize'));
-  describe('with knex adapter', runTest('knex'));
-  describe('with objection adapter', runTest('objection'));
+  // describe('with knex adapter', runTest('knex'));
+  // describe('with objection adapter', runTest('objection'));
   
-  describe('with mongoose adapter', runTest('mongoose'));
+  // describe('with mongoose adapter', runTest('mongoose'));
   // Needs to be skipped for now due to the async setup
   (tester === 'jest' ? describe.skip : describe)('with mongodb adapter', runTest('mongodb'));
 });

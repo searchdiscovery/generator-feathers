@@ -1,25 +1,25 @@
 // Initializes the `<%= name %>` service on path `/<%= path %>`
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '<%= relativeRoot %>declarations';
-import { <%= className %> } from './<%= kebabName %>.class';<% if(modelName) { %>
+import { <%= serviceClassName %> } from './<%= serviceKebabName %>.class';<% if(modelName) { %>
 import createModel from '<%= relativeRoot %>models/<%= modelName %>';<% } %>
-import hooks from './<%= kebabName %>.hooks';
+import hooks from './<%= serviceKebabName %>.hooks';
 
 // Add this service to the service type index
 declare module '<%= relativeRoot %>declarations' {
   interface ServiceTypes {
-    '<%= path %>': <%= className %> & ServiceAddons<any>;
+    '<%= path %>': <%= serviceClassName %> & ServiceAddons<any>;
   }
 }
 
-export default function (app: Application) {
+export default (app: Application): void => {
   const options = {<% if (modelName) { %>
     Model: createModel(app),<% } %>
-    paginate: app.get('paginate')
+    paginate: app.get('paginate'),
   };
 
   // Initialize our service with any options it requires
-  app.use('/<%= path %>', new <%= className %>(options, app));
+  app.use('/<%= path %>', new <%= serviceClassName %>(options, app));
 
   // Get our initialized service so that we can register hooks
   const service = app.service('<%= path %>');

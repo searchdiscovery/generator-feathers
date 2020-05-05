@@ -1,10 +1,11 @@
-import assert from 'assert';
-import app from '<%= relativeRoot %><%= libDirectory %>/app';
+import global from '../setup';
+import 'mocha';
 
-describe('\'<%= name %>\' service', () => {
+const { app, expect } = global;
+
+describe(`\'<%= name %>\' service`, () => {
   it('registered the service', () => {
     const service = app.service('<%= path %>');
-
-    assert.ok(service, 'Registered the service');
+    expect(service).to.be.ok;
   });
 });

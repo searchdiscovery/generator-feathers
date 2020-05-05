@@ -40,15 +40,6 @@ module.exports = class AppGenerator extends Generator {
         '@feathersjs/primus'
       ]);
     const prompts = [{
-      type: 'list',
-      name: 'language',
-      message: 'Do you want to use JavaScript or TypeScript?',
-      default: 'js',
-      choices: [
-        { name: 'JavaScript', value: 'js' },
-        { name: 'TypeScript', value: 'ts'  }
-      ],
-    }, {
       name: 'name',
       message: 'Project name',
       when: !this.pkg.name,
@@ -81,75 +72,34 @@ module.exports = class AppGenerator extends Generator {
       default: 'src',
       when: !(this.pkg.directories && this.pkg.directories.lib)
     }, {
-      name: 'packager',
-      type: 'list',
-      message: 'Which package manager are you using (has to be installed globally)?',
-      default: 'npm',
-      choices: [
-        { name: 'npm', value: 'npm@>= 3.0.0'   },
-        { name: 'Yarn', value: 'yarn@>= 0.18.0' }
-      ]
-    }, {
       type: 'checkbox',
       name: 'providers',
       message: 'What type of API are you making?',
       choices: [
         { name: 'REST', value: 'rest',     checked: true },
-        { name: 'Realtime via Socket.io', value: 'socketio', checked: true },
-        { name: 'Realtime via Primus', value: 'primus',                 }
-      ],
-      validate (input) {
-        if (input.indexOf('primus') !== -1 && input.indexOf('socketio') !== -1) {
-          return 'You can only pick SocketIO or Primus, not both.';
-        }
-
-        return true;
-      }
-    }, {
-      type: 'list',
-      name: 'tester',
-      message: 'Which testing framework do you prefer?',
-      default: 'mocha',
-      choices: [
-        { name: 'Mocha + assert', value: 'mocha' },
-        { name: 'Jest', value: 'jest'  }
-      ]
-    }, {
-      name: 'authentication',
-      message: 'This app uses authentication',
-      type: 'confirm',
-      default: true
-    }];
-
-    const jsPrompts = [{
-      type: 'list',
-      name: 'linter',
-      message: 'Which coding style do you want to use?',
-      default: 'eslint',
-      choices: [
-        { name: 'ESLint', value: 'eslint' },
-        { name: 'StandardJS', value: 'standard'  }
+        { name: 'Realtime via Socket.io', value: 'socketio', checked: true }
       ],
     }];
 
     return this.prompt(prompts).then(props => {
+      // setting default values
       props = Object.assign({}, this.props, props, {
-        linter: 'eslint'
+        language: 'ts',
+        packager: 'npm',
+        tester: 'mocha',
+        linter: 'eslint',
+        authentication: true,
       });
 
-      if (props.language === 'js') {
-        return this.prompt(jsPrompts).then(jsProps => {
-          return Object.assign({}, props, jsProps);
-        });
-      } else {
-        return props;
-      }
+      return props;
     }).then(props => {
       this.props = Object.assign({}, this.props, props);
     });
   }
 
   writing () {
+    // bypassing the writing
+    /*
     const props = this.props;
     const pkg = this.pkg = makeConfig.package(this);
     const context = Object.assign({}, props, {
@@ -230,6 +180,7 @@ module.exports = class AppGenerator extends Generator {
         props: { tester: props.tester }
       });
     }
+    */
   }
 
   install () {

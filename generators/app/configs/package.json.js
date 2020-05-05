@@ -33,7 +33,8 @@ module.exports = function(generator) {
     directories: {
       lib,
       test: 'test/',
-      config: configDirectory
+      config: configDirectory,
+      migration: 'src/migrations/'
     },
     engines: {
       node: `^${major}.0.0`,

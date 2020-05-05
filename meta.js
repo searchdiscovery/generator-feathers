@@ -5,5 +5,6 @@ module.exports = {
   hook: 'Create a new hook',
   middleware: 'Create an Express middleware',
   service: 'Generate a new service',
-  plugin: 'Create a new Feathers plugin'
+  plugin: 'Create a new Feathers plugin',
+  migration: 'Create a new Feathers migration',
 };

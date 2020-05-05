@@ -1,8 +1,11 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 import { Application } from '<%= relativeRoot %>declarations';
 
-export class <%= className %> extends Service {
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
+class <%= serviceClassName %> extends Service {
+  constructor(options: object, app: Application) {
     super(options);
   }
 }
+
+export { <%= serviceClassName %> };
+export default <%= serviceClassName %>;
