@@ -1,22 +1,27 @@
 export default {
-  up: async (queryInterface: any, Sequelize: any): Promise<any> => {
-    return queryInterface.createTable('<%= tableName %>', {
-      id: {
-        type: Sequelize.DataTypes.BIGINT,
-        allowNull: false,
-        primaryKey: true,
-        autoIncrement: true,
-      },
-      name: {
-        type: Sequelize.DataTypes.STRING,
-        allowNull: false,
-      },
-      createdAt: Sequelize.DataTypes.DATE,
-      updatedAt: Sequelize.DataTypes.DATE,
-    });
-  },
+  up: async (queryInterface: any, Sequelize: any): Promise<any> =>
+    queryInterface.sequelize.transaction(async (transaction: any) => {
+      // create table
+      await queryInterface.createTable(
+        '<%= tableName %>',
+        {
+          id: {
+            type: Sequelize.DataTypes.BIGINT,
+            allowNull: false,
+            primaryKey: true,
+            autoIncrement: true,
+          },
+          name: Sequelize.DataTypes.STRING,
+          createdAt: Sequelize.DataTypes.DATE,
+          updatedAt: Sequelize.DataTypes.DATE,
+        },
+        { transaction },
+      );
+    }),
 
-  down: async (queryInterface: any, Sequelize: any): Promise<any> => {
-    return queryInterface.dropTable('<%= tableName %>');
-  },
+  down: async (queryInterface: any, Sequelize: any): Promise<any> =>
+    queryInterface.sequelize.transaction(async (transaction: any) => {
+      // create table
+      await queryInterface.dropTable('<%= tableName %>', { transaction });
+    }),
 };
