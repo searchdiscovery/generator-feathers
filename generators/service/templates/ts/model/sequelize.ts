@@ -12,7 +12,7 @@ export type <%= className %>Model = typeof Model & {
   new (): <%= className %>Model;
 };
 
-export default function (app: Application) {
+export default function (app: Application): any {
   const sequelizeClient: Sequelize = app.get('sequelizeClient');
   const <%= camelName %> = sequelizeClient.define('<%= snakeName %>', {
     id: {

@@ -7,4 +7,5 @@ module.exports = {
   service: 'Generate a new service',
   plugin: 'Create a new Feathers plugin',
   migration: 'Create a new Feathers migration',
+  seed: 'Create a new Feathers seed file',
 };
