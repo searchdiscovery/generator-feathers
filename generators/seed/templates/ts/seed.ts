@@ -27,7 +27,6 @@ export default {
         updateOnDuplicate: ['updatedAt'],
       });
     } catch (e) {
-      console.log(e);
       logger.error('Error importing <%= tableName %>');
     }
   },
