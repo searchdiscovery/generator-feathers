@@ -13,6 +13,7 @@ export default {
     }
 
     const sequelize = app.get('sequelizeClient');
+    const model = sequelize.models.<%= tableName %>;
 
     await app.get('sequelizeSync');
 
@@ -22,9 +23,11 @@ export default {
 
     // Upsert <%= tableName %>
     try {
-      await sequelize.models.<%= tableName %>.bulkCreate(data, {
+      await model.bulkCreate(data, {
         // add fields to be updated here
-        updateOnDuplicate: ['updatedAt'],
+        updateOnDuplicate: Object.keys(model.rawAttributes).filter(
+          attribute => !['id', 'createdAt'].includes(attribute),
+        ),
       });
     } catch (e) {
       logger.error('Error importing <%= tableName %>');
