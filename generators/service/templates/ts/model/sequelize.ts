@@ -12,7 +12,7 @@ export type <%= className %>Model = typeof Model & {
   new (): <%= className %>Model;
 };
 
-export default function (app: Application): any {
+export default function(app: Application): any {
   const sequelizeClient: Sequelize = app.get('sequelizeClient');
   const <%= camelName %> = sequelizeClient.define('<%= snakeName %>', {
     id: {
@@ -30,7 +30,8 @@ export default function (app: Application): any {
       beforeCount(options: any): void {
         options.raw = true;
       }
-    }
+    },
+    paranoid: true,
   });
 
   // eslint-disable-next-line no-unused-vars

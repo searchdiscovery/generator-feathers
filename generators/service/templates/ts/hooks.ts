@@ -17,9 +17,11 @@ const setupModel = async (context: HookContext): Promise<HookContext> => {
 
   context.params.sequelize = context.params.sequelize || {};
   // Use the custom includes if present, otherwise use the default ones
-  const includes = $include || [
-    // Default includes go here
-  ];
+  const includes =
+    $include ||
+    [
+      // Default includes go here
+    ];
   Object.assign(context.params.sequelize, {
     raw: false,
     // Include all associated models unless `$shallow` is passed as a query
