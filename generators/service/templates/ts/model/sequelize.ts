@@ -12,9 +12,8 @@ export type <%= className %>Model = typeof Model & {
   new (): <%= className %>Model;
 };
 
-export default function(app: Application): any {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient');
-  const <%= camelName %> = sequelizeClient.define('<%= snakeName %>', {
+const config = {
+  attributes: {
     id: {
       type: DataTypes.BIGINT,
       allowNull: false,
@@ -25,13 +24,29 @@ export default function(app: Application): any {
       type: DataTypes.STRING,
       allowNull: false,
     },
-  }, {
+  },
+  options: {
     hooks: {
-      beforeCount(options: any): void {
-        options.raw = true;
-      }
+      beforeCount(opts: any): void {
+        opts.raw = true;
+      },
     },
     paranoid: true,
+  },
+};
+
+export default function(app: Application): any {
+  const sequelize: Sequelize = app.get('sequelizeClient');
+  // eslint-disable-next-line @typescript-eslint/class-name-casing
+  class <%= camelName %> extends Model {
+    static getConfiguration(): object {
+      return config;
+    }
+  }
+  <%= camelName %>.init(config.attributes, {
+    ...config.options,
+    sequelize,
+    modelName: '<%= snakeName %>',
   });
 
   // eslint-disable-next-line no-unused-vars
