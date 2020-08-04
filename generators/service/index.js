@@ -225,7 +225,7 @@ module.exports = class ServiceGenerator extends Generator {
     if (serviceModule.charAt(0) !== '.') {
       this._packagerInstall([serviceModule], { save: true });
     }
-
+    /*
     if (this.isTypescript) {
       const typeMap = {
         sequelize: ['@types/bluebird'],
@@ -234,9 +234,12 @@ module.exports = class ServiceGenerator extends Generator {
         nedb: ['@types/nedb'],
       };
 
+      
       if (typeMap[adapter]) {
         this._packagerInstall(typeMap[adapter], { saveDev: true });
       }
+      
     }
+    */
   }
 };

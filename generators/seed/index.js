@@ -11,6 +11,17 @@ module.exports = class SeedGenerator extends Generator {
         message:
           'What is the name of the seed table (singular, use spaces, no "_" or "-")?',
       },
+      {
+        name: 'type',
+        type:'list',
+        message:
+          'What type of seed you are creating?',
+        default: 'dynamic-seed',
+        choices: [
+          { name: 'A dynamic seed pulling from a CSV', value: 'dynamic-seed' },
+          { name: 'A static seed with just a list of values', value: 'static-seed' },
+        ],
+      },
     ];
 
     return this.prompt(prompts).then(props => {
@@ -47,7 +58,7 @@ module.exports = class SeedGenerator extends Generator {
 
     // Do not run code transformations if the middleware file already exists
     if (!this.fs.exists(mainFile)) {
-      this.fs.copyTpl(this.srcTemplatePath('seed'), mainFile, context);
+      this.fs.copyTpl(this.srcTemplatePath(context.type), mainFile, context);
     }
   }
 };

@@ -4,7 +4,7 @@ import { isQueryParamTruthy, buildArrayFromQuery } from '../../lib/queries';
 // Don't remove this comment. It's needed to format import lines nicely.
 
 interface ExtendedQuery extends Query {
-  $include?: object[];
+  $include?: Record<string, unknown>[];
   $shallow?: string;
   currentUserId?: number;
 }

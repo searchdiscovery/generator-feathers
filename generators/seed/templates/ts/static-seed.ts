@@ -1,6 +1,9 @@
+/* eslint-disable no-console */
+import moment from 'moment';
 import app from '../../app';
 import logger from '../../logger';
 import { Application } from '../../declarations';
+import { upsertSeed } from '../support/helpers';
 
 interface App extends Application {
   _isSetup: boolean;
@@ -13,22 +16,24 @@ export default {
     }
 
     const sequelize = app.get('sequelizeClient');
-    const model = sequelize.models.<%= tableName %>;
 
     await app.get('sequelizeSync');
 
     const data = [
       // Add data or data import here. It must contain the id field in order for upsert to work.
+      {
+        id: 1,
+        name: 'YOUR DATA OBJECTS GO HERE',
+        description: 'SOME DESCRIPTION',
+        updatedAt: moment.utc().format('YYYY-MM-DD HH:mm:ss.SSS +00:00'),
+        createdAt: moment.utc().format('YYYY-MM-DD HH:mm:ss.SSS +00:00'),
+        deletedAt: moment.utc().format('YYYY-MM-DD HH:mm:ss.SSS +00:00'),
+      },
     ];
 
     // Upsert <%= tableName %>
     try {
-      await model.bulkCreate(data, {
-        // add fields to be updated here
-        updateOnDuplicate: Object.keys(model.rawAttributes).filter(
-          attribute => !['id', 'createdAt'].includes(attribute),
-        ),
-      });
+      return upsertSeed(sequelize, '<%= tableName %>', data);
     } catch (e) {
       logger.error('Error importing <%= tableName %>');
     }

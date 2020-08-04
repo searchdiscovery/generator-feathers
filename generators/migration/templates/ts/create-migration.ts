@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 export default {
   up: async (queryInterface: any, Sequelize: any): Promise<any> =>
     queryInterface.sequelize.transaction(async (transaction: any) => {

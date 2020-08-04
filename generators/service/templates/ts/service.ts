@@ -25,4 +25,4 @@ export default (app: Application): void => {
   const service = app.service('<%= path %>');
 
   service.hooks(hooks);
-}
+};

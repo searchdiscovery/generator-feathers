@@ -3,6 +3,7 @@
 import { Sequelize, DataTypes, Model } from 'sequelize';
 import { Application } from '../declarations';
 
+// Don't forget to update the interface!
 export interface <%= className %>Attributes extends Model {
   readonly id: number;
   name: string;
@@ -37,9 +38,9 @@ const config = {
 
 export default function(app: Application): any {
   const sequelize: Sequelize = app.get('sequelizeClient');
-  // eslint-disable-next-line @typescript-eslint/class-name-casing
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   class <%= camelName %> extends Model {
-    static getConfiguration(): object {
+    static getConfiguration(): Record<string, unknown> {
       return config;
     }
   }
@@ -56,4 +57,4 @@ export default function(app: Application): any {
   };
 
   return <%= camelName %>;
-}
+};

@@ -11,6 +11,17 @@ module.exports = class MigrationGenerator extends Generator {
         message:
           'What is the name of the migration table (singular, use spaces, no "_" or "-")?',
       },
+      {
+        name: 'type',
+        type:'list',
+        message:
+          'What type of migration you are creating?',
+        default: 'create-migration',
+        choices: [
+          { name: 'Creating a table', value: 'create-migration' },
+          { name: 'Updating a table', value: 'update-migration' },
+        ],
+      },
     ];
 
     return this.prompt(prompts).then(props => {
@@ -28,9 +39,11 @@ module.exports = class MigrationGenerator extends Generator {
       const secStr = sec < 10 ? `0${sec}` : sec;
       const tableName = _.snakeCase(props.name);
       const kebabName = _.kebabCase(props.name);
+      // eslint-disable-next-line no-constant-condition
+      let type = props.type = 'create-migration' ? 'create' : 'update';
       this.props = Object.assign(this.props, props, {
         tableName,
-        filename: `${year}${monStr}${dayStr}${hourStr}${minStr}${secStr}-create-${kebabName}`,
+        filename: `${year}${monStr}${dayStr}${hourStr}${minStr}${secStr}-${type}-${kebabName}`,
       });
     });
   }
@@ -47,7 +60,7 @@ module.exports = class MigrationGenerator extends Generator {
 
     // Do not run code transformations if the middleware file already exists
     if (!this.fs.exists(mainFile)) {
-      this.fs.copyTpl(this.srcTemplatePath('migration'), mainFile, context);
+      this.fs.copyTpl(this.srcTemplatePath(context.type), mainFile, context);
     }
   }
 };
