@@ -1,7 +1,10 @@
+/* eslint-disable import/no-extraneous-dependencies */
 import { Request, Response, NextFunction } from 'express';
 
-export default () => {
-  return async (req: Request, res: Response, next: NextFunction): Promise<any> => {
-    next();
-  };
-}
+export default () => async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<any> => {
+  next();
+};

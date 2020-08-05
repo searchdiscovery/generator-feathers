@@ -61,13 +61,14 @@ export default {
     
     try {
       // Restore records that were deleted, and will be recreated, and delete records that don't belong
-      // 4th parameter "matchFields" is an array of fields that provide uniqueness to the record in the table
+      // 4th parameter "matchFields" is an array of fields that when combined provide uniqueness to the record in the table which is used to look for previous records that may have been previously deleted
       await deleteAndRestoreRecords(existingRecords, dataValues, model, ['name']);
 
       // Upsert to <%= tableName %>
       return upsertSeed(sequelize, '<%= tableName %>', dataValues);
     } catch (e) {
       logger.error('Error importing <%= tableName %>');
+      return true;
     }
   },
 };

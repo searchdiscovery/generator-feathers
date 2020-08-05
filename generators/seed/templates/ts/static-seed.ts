@@ -36,6 +36,7 @@ export default {
       return upsertSeed(sequelize, '<%= tableName %>', data);
     } catch (e) {
       logger.error('Error importing <%= tableName %>');
+      return true;
     }
   },
 };

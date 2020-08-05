@@ -40,6 +40,7 @@ export default {
       }
       return true;
     });
+    return true;
   },
 
   down: async (queryInterface: any, Sequelize: any): Promise<any> =>

@@ -40,7 +40,7 @@ module.exports = class MigrationGenerator extends Generator {
       const tableName = _.snakeCase(props.name);
       const kebabName = _.kebabCase(props.name);
       // eslint-disable-next-line no-constant-condition
-      let type = props.type = 'create-migration' ? 'create' : 'update';
+      let type = (props.type === 'create-migration') ? 'create' : 'update';
       this.props = Object.assign(this.props, props, {
         tableName,
         filename: `${year}${monStr}${dayStr}${hourStr}${minStr}${secStr}-${type}-${kebabName}`,
