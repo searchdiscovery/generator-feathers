@@ -29,12 +29,12 @@ module.exports = class ServiceGenerator extends Generator {
           'What is the name of the service (singular, use spaces, no "_" or "-")?',
         validate(input) {
           switch (input.trim()) {
-            case '':
-              return 'Service name can not be empty';
-            case 'authentication':
-              return '`authentication` is a reserved service name';
-            default:
-              return true;
+          case '':
+            return 'Service name can not be empty';
+          case 'authentication':
+            return '`authentication` is a reserved service name';
+          default:
+            return true;
           }
         },
         when: !props.name,
@@ -93,10 +93,10 @@ module.exports = class ServiceGenerator extends Generator {
     });
   }
 
-  _transformCode(code) {}
+  // _transformCode(code) {}
 
   _transformCodeTs(code) {
-    const { kebabName, serviceKebabName, subfolder } = this.props;
+    const { serviceKebabName, subfolder } = this.props;
     const ast = j(code);
     const folder = subfolder.concat(serviceKebabName).join('/');
     const camelName = _.camelCase(folder);
@@ -206,6 +206,18 @@ module.exports = class ServiceGenerator extends Generator {
     this.fs.copyTpl(
       this.srcTemplatePath(`hooks${this.props.authentication ? '-user' : ''}`),
       this.srcDestinationPath(...serviceFolder, `${serviceKebabName}.hooks`),
+      context,
+    );
+
+    this.fs.copyTpl(
+      this.srcTemplatePath('helpers'),
+      this.srcDestinationPath(...serviceFolder, `${serviceKebabName}.helpers`),
+      context,
+    );
+
+    this.fs.copyTpl(
+      this.srcTemplatePath('associations'),
+      this.srcDestinationPath(...serviceFolder, `${serviceKebabName}.associations`),
       context,
     );
 
