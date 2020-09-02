@@ -1,6 +1,5 @@
 const Generator = require('../../lib/generator');
 const path = require('path');
-const makeConfig = require('./configs');
 const { kebabCase } = require('lodash');
 
 module.exports = class AppGenerator extends Generator {
