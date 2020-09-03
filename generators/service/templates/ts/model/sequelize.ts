@@ -57,4 +57,4 @@ export default function(app: Application): any {
   };
 
   return <%= camelName %>;
-};
+}
