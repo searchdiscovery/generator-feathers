@@ -8,13 +8,9 @@ import { Application } from '../../declarations';
 import { importFromCSV } from '../../lib/data';
 import { upsertSeed, deleteAndRestoreRecords } from '../support/helpers';
 
-interface App extends Application {
-  _isSetup: boolean;
-}
-
 export default {
   up: async (queryInterface: any, Sequelize: any): Promise<any> => {
-    if (!(app as App)?._isSetup) {
+    if (!(app as Application)?._isSetup) {
       app.setup();
     }
 
