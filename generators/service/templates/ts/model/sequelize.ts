@@ -35,23 +35,22 @@ const config = {
 
 export default function(app: Application): any {
   const sequelize: Sequelize = app.get('sequelizeClient');
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  class <%= camelName %> extends Model {
+  class <%= className %> extends Model {
     static getConfiguration(): Record<string, unknown> {
       return config;
     }
   }
-  <%= camelName %>.init(config.attributes, {
+  <%= className %>.init(config.attributes, {
     ...config.options,
     sequelize,
     modelName: '<%= snakeName %>',
   });
 
   // eslint-disable-next-line no-unused-vars
-  (<%= camelName %> as any).associate = (models: any): void => {
+  (<%= className %> as any).associate = (models: any): void => {
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
   };
 
-  return <%= camelName %>;
+  return <%= className %>;
 }
