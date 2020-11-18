@@ -5,7 +5,7 @@ const DataTypes = Sequelize.DataTypes;
 
 module.exports = function (app) {
   const sequelizeClient = app.get('sequelizeClient');
-  const <%= camelName %> = sequelizeClient.define('<%= snakeName %>', {
+  const <%= className %> = sequelizeClient.define('<%= snakeName %>', {
     text: {
       type: DataTypes.STRING,
       allowNull: false
@@ -19,10 +19,10 @@ module.exports = function (app) {
   });
 
   // eslint-disable-next-line no-unused-vars
-  <%= camelName %>.associate = function (models) {
+  <%= className %>.associate = function (models) {
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
   };
 
-  return <%= camelName %>;
+  return <%= className %>;
 };
