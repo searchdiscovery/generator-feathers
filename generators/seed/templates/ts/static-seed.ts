@@ -5,13 +5,9 @@ import logger from '../../logger';
 import { Application } from '../../declarations';
 import { upsertSeed } from '../support/helpers';
 
-interface App extends Application {
-  _isSetup: boolean;
-}
-
 export default {
   up: async (queryInterface: any): Promise<any> => {
-    if (!(app as App)?._isSetup) {
+    if (!(app as Application)?._isSetup) {
       app.setup();
     }
 

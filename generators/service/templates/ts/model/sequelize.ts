@@ -4,14 +4,11 @@ import { Sequelize, DataTypes, Model } from 'sequelize';
 import { Application } from '../declarations';
 
 // Don't forget to update the interface!
-export interface <%= className %>Attributes extends Model {
+export type <%= className %> = typeof Model & {
+  new (): <%= className %>;
   readonly id: number;
   name: string;
 }
-
-export type <%= className %>Model = typeof Model & {
-  new (): <%= className %>Model;
-};
 
 const config = {
   attributes: {
