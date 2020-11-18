@@ -1,9 +1,6 @@
-import { iff } from 'feathers-hooks-common';
 <% if (requiresAuth) { %>import { authenticate } from '../../hooks/authentication';<% } %>
 import {
   setupModel,
-  restrictToPropertyOrOrg,
-  shouldRestrictToPropertyOrOrg,
 } from '../../hooks/queries';
 import * as associations from './<%= path %>.associations';
 
@@ -12,7 +9,7 @@ import * as associations from './<%= path %>.associations';
 export default {
   before: {
     all: [<% if (requiresAuth) { %>authenticate, <% } %>context => setupModel(context, associations)],
-    find: [iff(shouldRestrictToPropertyOrOrg, restrictToPropertyOrOrg)],
+    find: [],
     get: [],
     create: [],
     update: [],
