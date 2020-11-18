@@ -1,14 +1,13 @@
+import { HookContext } from '@feathersjs/feathers';
 <% if (requiresAuth) { %>import { authenticate } from '../../hooks/authentication';<% } %>
-import {
-  setupModel,
-} from '../../hooks/queries';
+import { setupModel } from '../../hooks/queries';
 import * as associations from './<%= path %>.associations';
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
 export default {
   before: {
-    all: [<% if (requiresAuth) { %>authenticate, <% } %>context => setupModel(context, associations)],
+    all: [<% if (requiresAuth) { %>authenticate, <% } %>(context: HookContext) => setupModel(context, associations)],
     find: [],
     get: [],
     create: [],
