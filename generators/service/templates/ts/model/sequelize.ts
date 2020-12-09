@@ -41,7 +41,7 @@ export default function(app: Application): any {
       return config;
     }
   }
-  
+
   <%= className %>.init(config.attributes, {
     ...config.options,
     sequelize,
