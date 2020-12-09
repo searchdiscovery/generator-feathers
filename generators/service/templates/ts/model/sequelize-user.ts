@@ -1,6 +1,6 @@
 // See http://docs.sequelizejs.com/en/latest/docs/models-definition/
 // for more of what you can do here.
-import { Sequelize, DataTypes } from 'sequelize';
+import { DataTypes, Sequelize } from 'sequelize';
 import { Application } from '../declarations';
 
 export default function (app: Application) {

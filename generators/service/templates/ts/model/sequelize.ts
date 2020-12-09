@@ -1,6 +1,6 @@
 // See http://docs.sequelizejs.com/en/latest/docs/models-definition/
 // for more of what you can do here.
-import { Sequelize, DataTypes, Model } from 'sequelize';
+import { DataTypes, Model, Sequelize } from 'sequelize';
 import { Application } from '../declarations';
 
 // Don't forget to update the interface!
@@ -35,11 +35,13 @@ const config = {
 
 export default function(app: Application): any {
   const sequelize: Sequelize = app.get('sequelizeClient');
+
   class <%= className %> extends Model {
     static getConfiguration(): Record<string, unknown> {
       return config;
     }
   }
+  
   <%= className %>.init(config.attributes, {
     ...config.options,
     sequelize,
