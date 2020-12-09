@@ -8,7 +8,7 @@ export type <%= className %> = typeof Model & {
   new (): <%= className %>;
   readonly id: number;
   name: string;
-}
+};
 
 const config = {
   attributes: {

@@ -5,6 +5,7 @@ const DataTypes = Sequelize.DataTypes;
 
 module.exports = function (app) {
   const sequelizeClient = app.get('sequelizeClient');
+  
   const <%= className %> = sequelizeClient.define('<%= snakeName %>', {
     text: {
       type: DataTypes.STRING,
