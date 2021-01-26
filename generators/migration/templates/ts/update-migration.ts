@@ -1,9 +1,11 @@
 /* eslint-disable no-console */
+import { QueryInterface, Transaction, DataTypes } from 'sequelize';
+
 export default {
-  up: async (queryInterface: any, Sequelize: any): Promise<any> => {
-    const { DataTypes } = Sequelize;
+  up: async (queryInterface: QueryInterface): Promise<void> => {
+
     // Make first update
-    await queryInterface.sequelize.transaction(async (transaction: any) => {
+    await queryInterface.sequelize.transaction(async (transaction: Transaction) => {
       // This is just an example, please remove!!
       try {
         console.log('Drop SOME_TABLE1');
@@ -13,12 +15,13 @@ export default {
         console.log('drop SOME_TABLE2');
         await queryInterface.dropTable('SOME_TABLE2', { transaction });
       } catch (e) {
-        console.log('Issue with dropping tables', e);
+        console.error('Issue with dropping tables', e);
+        throw new Error('1st update migration failed!');
       }
       return true;
     });
     // Make second update
-    await queryInterface.sequelize.transaction(async (transaction: any) => {
+    await queryInterface.sequelize.transaction(async (transaction: Transaction) => {
       // This is just an example, please remove!!
       try {
         console.log('Adding column to table');
@@ -36,15 +39,15 @@ export default {
           { transaction },
         );
       } catch (e) {
-        console.log('Issue with updating column', e);
+        console.error('Issue with updating column', e);
+        throw new Error('2nd migration failed!');
       }
       return true;
     });
-    return true;
   },
 
-  down: async (queryInterface: any, Sequelize: any): Promise<any> =>
-    queryInterface.sequelize.transaction(async (transaction: any) => {
+  down: async (queryInterface: any): Promise<void> =>
+    queryInterface.sequelize.transaction(async (transaction: Transaction) => {
       // Back out the changes made in "up"
     }),
 };

@@ -12,6 +12,8 @@ describe(`'<%= name %>' service`, () => {
   it('creates an object', async () => {
     const obj = await global.factory.create('<%= snakeName %>');
     expect(obj).to.be.an('object');
+    // Cleanup
+    await global.cleanUp();
   });
 
   it('returns array', async () => {

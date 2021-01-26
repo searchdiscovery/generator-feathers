@@ -1,15 +1,21 @@
 /* eslint-disable no-console */
 import moment from 'moment';
 import path from 'path';
-import { uniqBy } from 'lodash';
+import { uniqBy, differenceBy } from 'lodash';
+import { QueryInterface } from 'sequelize';
 import app from '../../app';
 import logger from '../../logger';
 import { Application } from '../../declarations';
 import { importFromCSV } from '../../lib/data';
-import { upsertSeed, deleteAndRestoreRecords } from '../support/helpers';
+import {
+  upsertSeed,
+  deleteAndRestoreRecords,
+  getStats,
+  reconcileStats,
+} from '../support/helpers';
 
 export default {
-  up: async (queryInterface: any, Sequelize: any): Promise<any> => {
+  up: async (queryInterface: QueryInterface): Promise<boolean> => {
     if (!(app as Application)?._isSetup) {
       app.setup();
     }
@@ -54,17 +60,35 @@ export default {
       return newRow;
     });
 
-    
-    try {
-      // Restore records that were deleted, and will be recreated, and delete records that don't belong
-      // 4th parameter "matchFields" is an array of fields that when combined provide uniqueness to the record in the table which is used to look for previous records that may have been previously deleted
-      await deleteAndRestoreRecords(existingRecords, dataValues, model, ['name']);
-
-      // Upsert to <%= tableName %>
-      return upsertSeed(sequelize, '<%= tableName %>', dataValues);
-    } catch (e) {
-      logger.error('Error importing <%= tableName %>');
-      return true;
-    }
+    // The 2nd parameter is a "where clause" object that should be used to filter the target table to only the records that may be modified. If null, no filter is used, if left empty, a query of {propertyId: null, and organizationId: null} is used. This can be catered to a model by passing a specific where clause in.
+    const beforeStats = await getStats(model, null);
+    // Restore records that were deleted, and will be recreated (no longer deletes)
+    // 4th parameter "matchFields" is an array of fields that when combined provide uniqueness to the record in the table which is used to look for previous records that may have been previously deleted - this should be changed to meet the specific table's requirements!
+    const restoreCount = await deleteAndRestoreRecords(
+      existingRecords,
+      dataValues,
+      model,
+      ['name', 'code'],
+    );
+    const dataValuesToAdd = differenceBy(
+      dataValues,
+      existingRecords,
+      // This should be updated to match the fields used for deleteAndRestoreRecords
+      (val: any) => `${val.name}:${val.code}`,
+    );
+    // Upsert records
+    await upsertSeed(
+      sequelize,
+      '<%= tableName %>',
+      dataValues,
+    );
+    // The 2nd parameter is a "where clause" object that should be used to filter the target table to only the records that may be modified. If null, no filter is used, if left empty, a query of {propertyId: null, and organizationId: null} is used. This can be catered to a model by passing a specific where clause in.
+    const afterStats = await getStats(model, null);
+    return reconcileStats(
+      beforeStats,
+      afterStats,
+      dataValuesToAdd,
+      restoreCount,
+    );
   },
 };

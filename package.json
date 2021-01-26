@@ -1,7 +1,7 @@
 {
   "name": "generator-feathers-apollo",
   "description": "A Yeoman generator for a Feathers application",
-  "version": "4.2.17",
+  "version": "4.2.18",
   "homepage": "https://github.com/searchdiscovery/generator-feathers-apollo",
   "main": "generators/app/index.js",
   "license": "MIT",

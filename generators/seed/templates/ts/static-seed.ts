@@ -1,12 +1,13 @@
 /* eslint-disable no-console */
 import moment from 'moment';
+import { QueryInterface } from 'sequelize';
 import app from '../../app';
 import logger from '../../logger';
 import { Application } from '../../declarations';
 import { upsertSeed } from '../support/helpers';
 
 export default {
-  up: async (queryInterface: any): Promise<any> => {
+  up: async (queryInterface: QueryInterface): Promise<void> => {
     if (!(app as Application)?._isSetup) {
       app.setup();
     }
@@ -28,11 +29,6 @@ export default {
     ];
 
     // Upsert <%= tableName %>
-    try {
-      return upsertSeed(sequelize, '<%= tableName %>', data);
-    } catch (e) {
-      logger.error('Error importing <%= tableName %>');
-      return true;
-    }
+    await upsertSeed(sequelize, '<%= tableName %>', data);
   },
 };
