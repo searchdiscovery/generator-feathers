@@ -1,20 +1,19 @@
-/* eslint-disable no-console */
-import { QueryInterface, Transaction, DataTypes } from 'sequelize';
-import to from 'a-promise-wrapper';
+import { DataTypes, QueryInterface, Sequelize, Transaction } from 'sequelize';
+import logger from '../../logger';
 
 export default {
   up: async (queryInterface: QueryInterface): Promise<void> => {
     await queryInterface.sequelize.transaction(async () => {
 
-      const { error } = await to(
+      const { error } = await 
         queryInterface.createTable(
           '<%= tableName %>',
           {
             id: {
-              type: DataTypes.BIGINT,
+              type: DataTypes.UUID,
               allowNull: false,
               primaryKey: true,
-              autoIncrement: true,
+              defaultValue: Sequelize.literal('uuid_generate_v4()'),
             },
             name: {
               type: DataTypes.STRING,
@@ -24,17 +23,15 @@ export default {
             updatedAt: DataTypes.DATE,
             deletedAt: DataTypes.DATE,
           }
-        )
-      );
+        ).catch(error => {
+          logger.error(
+            'Issue with adding `<%= tableName %>` table',
+            error,
+          );
+  
+          throw new Error('Table create migration failed!');
+        });
 
-      if (error) {
-        console.error(
-          'Issue with adding `<%= tableName %>` table',
-          error,
-        );
-
-        throw new Error('Table create migration failed!');
-      }
       return true;
     });
   },

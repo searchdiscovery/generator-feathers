@@ -1,5 +1,5 @@
-/* eslint-disable no-console */
 import { QueryInterface, Transaction, DataTypes } from 'sequelize';
+import logger from '../../logger';
 
 export default {
   up: async (queryInterface: QueryInterface): Promise<void> => {
@@ -8,14 +8,14 @@ export default {
     await queryInterface.sequelize.transaction(async (transaction: Transaction) => {
       // This is just an example, please remove!!
       try {
-        console.log('Drop SOME_TABLE1');
+        logger.info('Drop SOME_TABLE1');
         await queryInterface.dropTable('SOME_TABLE1', {
           transaction,
         });
-        console.log('drop SOME_TABLE2');
+        logger.info('drop SOME_TABLE2');
         await queryInterface.dropTable('SOME_TABLE2', { transaction });
       } catch (e) {
-        console.error('Issue with dropping tables', e);
+        logger.error('Issue with dropping tables', e);
         throw new Error('1st update migration failed!');
       }
       return true;
@@ -24,7 +24,7 @@ export default {
     await queryInterface.sequelize.transaction(async (transaction: Transaction) => {
       // This is just an example, please remove!!
       try {
-        console.log('Adding column to table');
+        logger.info('Adding column to table');
         await queryInterface.addColumn(
           'SOME_TABLE3',
           'SOME_FIELD',
@@ -39,7 +39,7 @@ export default {
           { transaction },
         );
       } catch (e) {
-        console.error('Issue with updating column', e);
+        logger.error('Issue with updating column', e);
         throw new Error('2nd migration failed!');
       }
       return true;

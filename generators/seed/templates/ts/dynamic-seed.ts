@@ -1,94 +1,190 @@
-/* eslint-disable no-console */
 import moment from 'moment';
 import path from 'path';
 import { uniqBy, differenceBy } from 'lodash';
-import { QueryInterface } from 'sequelize';
+import { Op } from 'sequelize';
 import app from '../../app';
-import logger from '../../logger';
 import { Application } from '../../declarations';
 import { importFromCSV } from '../../lib/data';
+import logger from '../../logger';
 import {
   upsertSeed,
   deleteAndRestoreRecords,
   getStats,
   reconcileStats,
+  fetchAllRecords,
+  getRecordByField,
+  dateFormat,
 } from '../support/helpers';
 
 export default {
-  up: async (queryInterface: QueryInterface): Promise<boolean> => {
+  up: async (): Promise<boolean> => {
     if (!(app as Application)?._isSetup) {
       app.setup();
     }
 
     const sequelize = app.get('sequelizeClient');
-    const model = sequelize.models.<%= tableName %>;
-
     await app.get('sequelizeSync');
 
-    // Import <%= tableName %> csv records
+    //
+    // Import CSV Data
+    //
+
     const importedCsvData = await importFromCSV(
       path.join(__dirname, '..', 'data', 'CSV_FILENAME.csv'),
       1,
     );
 
+    //
+    // Agency and Org setup
+    //
+
+    const agencyRecords = await fetchAllRecords('agency', true);
+    const organizationRecords = await fetchAllRecords('organization', true);
+
+    //
+    // Get Existing Records
+    //
+
+    const model = sequelize.models.<%= tableName %>;
+
+    const whereClause = {
+      propertyId: { [Op.is]: null },
+      uniqueId: { [Op.not]: null },
+    };
+
     const existingRecords = await model.findAll({
+      where: whereClause,
       raw: true,
       paranoid: false,
     });
 
-    // Get unique records from the csv data and normalize the field names
-    const csvData = uniqBy(
+    //
+    // Normalize CSV data
+    //
+
+    const allCsvData = uniqBy(
       importedCsvData
         .map(item => ({
           name: item['NAME'],
-          description: item['DESCRIPTION']
+          description: item['DESCRIPTION'],
+          organizationId:
+          getRecordByField(
+            organizationRecords,
+            item.Organization,
+            'organization',
+          )?.id || null,
+          agencyId:
+            getRecordByField(agencyRecords, item.Agency, 'agency')?.id || null,
+          uniqueId: item['Unique Id'],
         }))
         .sort((a, b) => (a.name > b.name ? 1 : -1)),
       (rec: any) => rec.name,
     );
+    // Get the global objects
+    const globalObjects = allCsvData.filter(
+      item => item.agencyId === null && item.organizationId === null,
+    );
+    // Combine global objects with all agency and org data that does not match a global object
+    const finalCsvObjects = uniqBy(
+      [
+        ...globalObjects,
+        ...allCsvData.filter(
+          item =>
+            item.agencyId !== null ||
+            (item.organizationId !== null &&
+              !globalObjects.some(globalObj => globalObj.name === item.name)),
+        ),
+      ],
+      'name',
+    );
 
-    // Find any join IDs from other tables, get previous IDs from the existing records, add add default fields to each row
-    const dataValues = csvData.map((row: any) => {
-      const rowId = existingRecords.find(exItem => exItem.name === row.name)?.id;
-      const newRow = {
-        id: rowId || null,
-        ...row,
-        createdAt: moment.utc().format('YYYY-MM-DD HH:mm:ss.SSS +00:00'),
-        updatedAt: moment.utc().format('YYYY-MM-DD HH:mm:ss.SSS +00:00'),
-        deletedAt: moment.utc().format('YYYY-MM-DD HH:mm:ss.SSS +00:00'),
-      };
-      return newRow;
+    //
+    // VALIDATION: If uniqueId does not exist or has duplicates, throw error
+    //
+
+    const missingUniqueId = finalCsvObjects.filter(
+      item => item.uniqueId === null,
+    );
+    if (missingUniqueId.length)
+      throw new Error(
+        `There are missing uniqueIds for <%= tableName %>: ${missingUniqueId.map(
+          missing => missing.name,
+        )}`,
+      );
+
+    const deduped = [];
+    const duplicates = [];
+
+    // Find duplicate records by uniqueId
+    finalCsvObjects.forEach(sortedItem => {
+      if (!deduped.some(item => item.uniqueId === sortedItem.uniqueId)) {
+        deduped.push(sortedItem);
+      } else {
+        duplicates.push(sortedItem);
+      }
     });
+    if (duplicates.length)
+      throw new Error(
+        `There are duplicate uniqueIds for <%= tableName %>: ${duplicates.map(
+          dup => dup.name,
+        )}`,
+      );
 
-    // The 2nd parameter is a "where clause" object that should be used to filter the target table to only the records that may be modified. If null, no filter is used, if left empty, a query of {propertyId: null, and organizationId: null} is used. This can be catered to a model by passing a specific where clause in.
-    const beforeStats = await getStats(model, null);
-    // Restore records that were deleted, and will be recreated (no longer deletes)
-    // 4th parameter "matchFields" is an array of fields that when combined provide uniqueness to the record in the table which is used to look for previous records that may have been previously deleted - this should be changed to meet the specific table's requirements!
-    const restoreCount = await deleteAndRestoreRecords(
-      existingRecords,
-      dataValues,
-      model,
-      ['name', 'code'],
-    );
-    const dataValuesToAdd = differenceBy(
-      dataValues,
-      existingRecords,
-      // This should be updated to match the fields used for deleteAndRestoreRecords
-      (val: any) => `${val.name}:${val.code}`,
-    );
-    // Upsert records
-    await upsertSeed(
-      sequelize,
-      '<%= tableName %>',
-      dataValues,
-    );
-    // The 2nd parameter is a "where clause" object that should be used to filter the target table to only the records that may be modified. If null, no filter is used, if left empty, a query of {propertyId: null, and organizationId: null} is used. This can be catered to a model by passing a specific where clause in.
-    const afterStats = await getStats(model, null);
-    return reconcileStats(
-      beforeStats,
-      afterStats,
-      dataValuesToAdd,
-      restoreCount,
-    );
+    //
+    // Method to seed the database
+    //
+
+    const seedSegmentedData = async csvData => {
+      // Add the date fields and the id field (check for a matching existing record by uniqueId)
+      const dataValues = csvData.map((row: any) => {
+        const existingRecord = existingRecords.find(
+          item => item.uniqueId === row.uniqueId,
+        );
+        const newRow = {
+          id: existingRecord?.id || 'DEFAULT',
+          ...row,
+          createdAt: existingRecord
+            ? moment(existingRecord?.createdAt)
+                .utc()
+                .format(dateFormat)
+            : moment.utc().format(dateFormat),
+          updatedAt: moment.utc().format(dateFormat),
+          deletedAt: null,
+        };
+        return newRow;
+      });
+
+      // Upsert <%= tableName %>
+      const beforeStats = await getStats(model, whereClause);
+      // Restore records that were deleted, and will be recreated (no longer deletes)
+      const restoreCount = await deleteAndRestoreRecords(
+        existingRecords,
+        dataValues,
+        model,
+        ['uniqueId', 'organizationId', 'agencyId'],
+      );
+      const dataValuesToAdd = differenceBy(
+        dataValues,
+        existingRecords,
+        (val: any) => `${val.uniqueId}:${val.organizationId}:${val.agencyId}`,
+      );
+      // Upsert records - Add only, no updates
+      await upsertSeed(sequelize, '<%= tableName %>', dataValues);
+
+      logger.info(
+        `To be Updated: ${dataValues.length - dataValuesToAdd.length}`,
+      );
+
+      const afterStats = await getStats(model, whereClause);
+      return reconcileStats(
+        beforeStats,
+        afterStats,
+        dataValuesToAdd,
+        restoreCount,
+        '<%= tableName %>',
+      );
+    };
+    return seedSegmentedData(finalCsvObjects);
+    
   },
 };

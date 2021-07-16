@@ -1,9 +1,8 @@
-// This file is used to define associations for the <%= path %> service
-// This is a build out of all the allowed associations for this object. if this is not populated, no associations will be allowed
-export const allowedAssociations = [];
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { HookContext } from '@feathersjs/feathers';
 
 // These are the associations that will be included by default for all requests
-export const defaultAssociations = [];
+export const defaultAssociations = (context: HookContext) => [];
 
-// This should include assocations that can be included on a query string. They should only start with "$"
-export const predefinedAssociations = {};
+// This should include associations that can be included on a query string.
+export const predefinedAssociations = (context: HookContext) => ({});

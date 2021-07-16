@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */
 // See http://docs.sequelizejs.com/en/latest/docs/models-definition/
 // for more of what you can do here.
 import { DataTypes, Model, Sequelize } from 'sequelize';
@@ -6,17 +7,20 @@ import { Application } from '../declarations';
 // Don't forget to update the interface!
 export type <%= className %> = typeof Model & {
   new (): <%= className %>;
-  readonly id: number;
+  readonly id: string;
   name: string;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+  deletedAt?: string | Date;
 };
 
 const config = {
   attributes: {
     id: {
-      type: DataTypes.BIGINT,
+      type: DataTypes.UUID,
       allowNull: false,
       primaryKey: true,
-      autoIncrement: true,
+      defaultValue: DataTypes.UUIDV4,
     },
     name: {
       type: DataTypes.STRING,
